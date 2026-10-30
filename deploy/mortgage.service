@@ -1,0 +1,20 @@
+[Unit]
+Description=Mortgage calculator
+After=network.target
+
+[Service]
+Type=simple
+User=mortgage
+Group=mortgage
+WorkingDirectory=/opt/mortgage
+ExecStart=/usr/bin/python3 /opt/mortgage/app.py --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+[Install]
+WantedBy=multi-user.target
