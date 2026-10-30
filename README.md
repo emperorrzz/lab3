@@ -25,7 +25,6 @@ python app.py --amount 3000000 --rate 12 --years 20
 2. Только после успешных тестов push в main запускает задачу deploy на виртуалке.
 3. Runner копирует app.py и calculator.py в /opt/mortgage.
 4. Запускает установленную программу с примером данных для проверки.
-5. Сохраняет SHA коммита в VERSION.
 
 При падении тестов задача deploy пропускается, установленная версия не меняется.
 Откат при ошибке самого deploy не реализован.
@@ -37,7 +36,6 @@ python app.py --amount 3000000 --rate 12 --years 20
 
 ```bash
 python3 /opt/mortgage/app.py
-python3 /opt/mortgage/app.py --version
 ```
 
 Запускать установленную программу из /opt/mortgage, а не копию исходников.

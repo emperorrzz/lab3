@@ -30,4 +30,3 @@ jobs:
         run: |
           cp app.py calculator.py /opt/mortgage/
           /usr/bin/python3 /opt/mortgage/app.py --amount 120000 --rate 0 --years 1
-          echo "$GITHUB_SHA" > /opt/mortgage/VERSION

@@ -39,11 +39,5 @@ def test_fractional_years():
     assert run_cli("--amount", "100000", "--rate", "12", "--years", "1.5").returncode == 2
 
 
-def test_version():
-    result = run_cli("--version")
-    assert result.returncode == 0
-    assert result.stdout.strip()
-
-
 def test_missing_input_does_not_hang():
     assert run_cli(input="").returncode == 2

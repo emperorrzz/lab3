@@ -1,6 +1,5 @@
 """Консольный калькулятор ипотеки."""
 import argparse
-from pathlib import Path
 
 from calculator import calculate_mortgage
 
@@ -12,9 +11,6 @@ def main(argv=None):
     parser.add_argument("--amount", type=float, help="Сумма кредита в рублях")
     parser.add_argument("--rate", type=float, help="Годовая ставка в процентах")
     parser.add_argument("--years", type=int, help="Срок в годах")
-    version_file = Path(__file__).with_name("VERSION")
-    version = version_file.read_text(encoding="utf-8").strip() if version_file.exists() else "local"
-    parser.add_argument("--version", action="version", version=version)
     args = parser.parse_args(argv)
     try:
         amount = args.amount if args.amount is not None else float(input("Сумма кредита: "))
