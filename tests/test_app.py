@@ -1,55 +1,49 @@
-from io import BytesIO
-import unittest
+import subprocess
+import sys
+from pathlib import Path
 
-from app import Handler
-
-
-class MemoryConnection:
-    """Передаёт HTTP-запрос настоящему обработчику без открытия TCP-порта."""
-
-    def __init__(self, request):
-        self.request = request
-        self.response = bytearray()
-
-    def makefile(self, mode, buffering=-1):
-        return BytesIO(self.request)
-
-    def sendall(self, data):
-        self.response.extend(data)
+APP = Path(__file__).resolve().parents[1] / "app.py"
 
 
-class WebTests(unittest.TestCase):
-    def request(self, path="/", data=None):
-        body = data.encode() if data is not None else b""
-        method = "POST" if data is not None else "GET"
-        headers = f"{method} {path} HTTP/1.0\r\nContent-Length: {len(body)}\r\n\r\n"
-        connection = MemoryConnection(headers.encode() + body)
-        Handler(connection, ("127.0.0.1", 12345), None)
-        head, body = bytes(connection.response).split(b"\r\n\r\n", 1)
-        return int(head.split()[1]), body.decode("utf-8")
+def run_cli(*args, input=None):
+    return subprocess.run(
+        [sys.executable, str(APP), *args], input=input,
+        capture_output=True, text=True, encoding="utf-8",
+        env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"},
+        timeout=10,
+    )
 
-    def test_home_page(self):
-        status, body = self.request()
-        self.assertEqual(status, 200)
-        self.assertIn("Калькулятор ипотеки", body)
 
-    def test_health(self):
-        self.assertEqual(self.request("/health"), (200, "ok"))
+def test_calculation():
+    result = run_cli("--amount", "120000", "--rate", "0", "--years", "1")
+    assert result.returncode == 0
+    assert "10000.00" in result.stdout
+    assert "120000.00" in result.stdout
 
-    def test_calculation_form(self):
-        status, body = self.request(data="amount=120000&rate=0&years=1")
-        self.assertEqual(status, 200)
-        self.assertIn("10,000.00", body)
 
-    def test_bad_input_returns_400(self):
-        for data in ("amount=-1&rate=12&years=20", "amount=abc", "amount=1&rate=2&years=1.5"):
-            with self.subTest(data=data):
-                self.assertEqual(self.request(data=data)[0], 400)
+def test_interactive_input():
+    result = run_cli(input="120000\n0\n1\n")
+    assert result.returncode == 0
+    assert "10000.00" in result.stdout
 
-    def test_missing_page(self):
-        self.assertEqual(self.request("/missing")[0], 404)
 
-    def test_input_is_escaped(self):
-        status, body = self.request(data="amount=%3Cscript%3E&rate=0&years=1")
-        self.assertEqual(status, 400)
-        self.assertNotIn("<script>", body)
+def test_invalid_amount():
+    assert run_cli("--amount", "-1", "--rate", "12", "--years", "20").returncode == 2
+
+
+def test_invalid_number():
+    assert run_cli("--amount", "abc").returncode == 2
+
+
+def test_fractional_years():
+    assert run_cli("--amount", "100000", "--rate", "12", "--years", "1.5").returncode == 2
+
+
+def test_version():
+    result = run_cli("--version")
+    assert result.returncode == 0
+    assert result.stdout.strip()
+
+
+def test_missing_input_does_not_hang():
+    assert run_cli(input="").returncode == 2

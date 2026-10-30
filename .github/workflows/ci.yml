@@ -14,8 +14,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: python3 -m pip install -r requirements-dev.txt
       - name: Run tests
-        run: python3 -m unittest discover -s tests -v
+        run: python3 -m pytest -v
 
   deploy:
     needs: test
@@ -25,4 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy to Ubuntu VM
-        run: bash deploy/deploy.sh
+        run: |
+          cp app.py calculator.py /opt/mortgage/
+          /usr/bin/python3 /opt/mortgage/app.py --amount 120000 --rate 0 --years 1
+          echo "$GITHUB_SHA" > /opt/mortgage/VERSION
