@@ -3,7 +3,7 @@ import argparse
 
 from calculator import calculate_mortgage
 
-TITLE = "Калькулятор ипотеки"
+TITLE = "Ипотечный калькулятор v1"
 
 
 def main(argv=None):
@@ -12,6 +12,7 @@ def main(argv=None):
     parser.add_argument("--rate", type=float, help="Годовая ставка в процентах")
     parser.add_argument("--years", type=int, help="Срок в годах")
     args = parser.parse_args(argv)
+    print(TITLE, flush=True)
     try:
         amount = args.amount if args.amount is not None else float(input("Сумма кредита: "))
         rate = args.rate if args.rate is not None else float(input("Годовая ставка (%): "))
@@ -19,7 +20,6 @@ def main(argv=None):
         result = calculate_mortgage(amount, rate, years)
     except (ValueError, EOFError) as error:
         parser.exit(2, f"Ошибка ввода: {error}\n")
-    print(TITLE)
     print(f"Ежемесячный платёж: {result.monthly_payment:.2f} руб.")
     print(f"Всего выплат: {result.total_payment:.2f} руб.")
     print(f"Переплата: {result.overpayment:.2f} руб.")
