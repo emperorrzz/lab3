@@ -17,29 +17,6 @@ python app.py
 python app.py --amount 3000000 --rate 12 --years 20
 ```
 
-## Разовая подготовка Ubuntu
-
-GitHub Actions Runner уже установлен под пользователем runner
-с дополнительной меткой mortgage. Команды ниже выполнять под пользователем art.
-
-Если раньше была установлена веб-версия, сначала убрать её службу:
-
-```bash
-sudo systemctl disable --now mortgage.service
-sudo rm -f /etc/systemd/system/mortgage.service /etc/sudoers.d/mortgage
-sudo systemctl daemon-reload
-```
-
-Подготовить папку приложения и права на неё:
-
-```bash
-sudo mkdir -p /opt/mortgage
-sudo chown -R runner:runner /opt/mortgage
-```
-
-Службу GitHub Actions Runner останавливать не нужно.
-Вручную копировать код не требуется: после push это сделает pipeline.
-
 ## Как работает CI/CD
 
 Всё описано в .github/workflows/ci.yml:
